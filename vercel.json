@@ -1,14 +1,8 @@
 {
-  "version": 2,
-  "functions": {
-    "app.py": {
-      "runtime": "python3.12"
-    }
-  },
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/app.py"
+      "src": "/(.*)",
+      "dest": "app.py"
     }
   ]
 }
