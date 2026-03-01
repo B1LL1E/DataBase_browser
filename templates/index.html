@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Seriale</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        * { box-sizing: border-box; }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; padding: 20px; background: #f5f5f5; line-height: 1.6;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        
+        h1 { text-align: center; color: #333; margin-bottom: 30px; }
+        
+        /* Lista seriali - GÓRA */
+        .seriale-list { 
+            background: white; border-radius: 12px; padding: 25px; 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1); margin-bottom: 30px;
+        }
+        .stats { text-align: center; color: #666; margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px 12px; text-align: left; }
+        th { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; }
+        tr:nth-child(even) { background: #f8f9ff; }
+        tr:hover { background: #e3f2fd; transform: scale(1.01); transition: 0.2s; }
+        
+        /* Przycisk formularza */
+        .add-btn { 
+            display: block; width: 250px; margin: 0 auto 30px; padding: 15px 30px; 
+            background: linear-gradient(45deg, #ff6b6b, #ee5a24); color: white; 
+            border: none; border-radius: 50px; font-size: 18px; cursor: pointer;
+            box-shadow: 0 6px 20px rgba(255,107,107,0.4);
+            margin-top: 30px;
+        }
+        .add-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(255,107,107,0.5); }
+        
+        /* Formularz - UKRYTY na start */
+        .form-container { display: none; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        .form-row { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .form-group { flex: 1; min-width: 200px; }
+        label { display: block; margin-bottom: 5px; font-weight: 600; color: #555; }
+        input, select, textarea { width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; font-size: 16px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+        textarea { resize: vertical; min-height: 80px; }
+        .submit-btn { background: linear-gradient(45deg, #56ab2f, #a8e6cf); padding: 15px 40px; font-size: 18px; }
+        
+        /* RESPONSYWNOŚĆ */
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .form-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            table { font-size: 14px; }
+            th, td { padding: 10px 6px; }
+        }
+        @media (max-width: 480px) {
+            tr:hover { transform: none; }
+            .add-btn { width: 100%;}
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📺 SERIALE ({{ seriale|length }})</h1>
+        
+        <!-- wyszukiwarka -->
+         <div class="search-box">
+                <input type="text" id="searchInput" placeholder="🔍 Szukaj po tytule, AVT, języku..." onkeyup="filterTable()">
+                <!--<span class="search-icon">🔍</span>-->
+            </div>
+            <button class="add-btn" onclick="toggleForm()">➕ Dodaj Serial</button>
+        </div>
+
+
+        <!-- LISTA SERIALI - ZAWSZE NA GÓRZE -->
+        <div class="seriale-list">
+            <div class="stats">Znaleziono {{ seriale|length }} seriali</div>
+            {% if seriale %}
+            <table id="serialeTable">
+                <tr>
+                    <th>Tytuł</th><th>Odcinki</th><th>AVT</th><th>Język</th><th>AVT Autor</th><th>Źródło</th>
+                </tr>
+                {% for serial in seriale %}
+                <tr>    
+                    <td><strong>{{ serial.tytul }}</strong></td>
+                    <td>{{ serial.nr_odc_poczatek }}-{{ serial.nr_odc_koniec }}</td>
+                    <td>
+                        {% if serial.avt == 'dubbing' %}<span style="color:#00ff88">🎙️</span>{% endif %}
+                        {% if serial.avt == 'napisy' %}<span style="color:#ffaa00">📝</span>{% endif %}
+                        {{ serial.avt }}
+                    </td>
+                    <td>{{ serial.jezyk }}</td>
+                    <td>{{ serial.autor_avt}}</td>
+                    <td><a href="{{ serial.zrodlo }}" target="_blank" style="color:#667eea">🔗 Odtwórz</a></td>
+                </tr>
+                {% endfor %}
+            </table>
+            {% else %}
+            <p style="text-align:center; color:#999; font-size:18px;">Brak seriali. Dodaj pierwszy! 👆</p>
+            {% endif %}
+        </div>
+        
+        <!-- PRZYCISK DO FORMULARZA -->
+        <button class="add-btn" onclick="toggleForm()">➕ Dodaj Nowy Serial</button>
+        
+        <!-- FORUMULARZ - UKRYTY POD PRZYCISKIEM -->
+        <div class="form-container" id="addForm">
+            <h2 style="margin-top:0;">➕ Dodaj Serial</h2>
+            <form method="POST" action="/add">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Tytuł:</label>
+                        <input name="tytul" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Odcinki:</label>
+                        <input name="nr_odc_poczatek" type="number" required> -
+                        <input name="nr_odc_koniec" type="number" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>AVT:</label>
+                        <select name="avt" required>
+                            <option value="dubbing">🎙️ Dubbing</option>
+                            <option value="lektor">🎤 Lektor</option>
+                            <option value="napisy">📝 Napisy</option>
+                            <option value="inne">❓ Inne</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Język:</label>
+                        <select name="jezyk" required>
+                            <option value="polski">🇵🇱 Polski</option>
+                            <option value="english">🇺🇸 English</option>
+                            <option value="inne">🌐 Inne</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Autor AVT:</label>
+                        <input name="autor_avt">
+                    </div>
+                    <div class="form-group">
+                        <label>Źródło:</label>
+                        <input name="zrodlo" required placeholder="https://drive.google.com/...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Opis:</label>
+                    <textarea name="opis" placeholder="Krótki opis serialu..."></textarea>
+                </div>
+                <button type="submit" class="submit-btn">💾 Zapisz Serial</button>
+                <button type="button" onclick="toggleForm()" style="background:#6c757d; margin-left:10px;">❌ Anuluj</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function toggleForm() {
+            const form = document.getElementById('addForm');
+            form.style.display = form.style.display === 'none' ? 'block' : 'none';
+        }
+        
+        function filterTable() {
+            const input = document.getElementById('searchInput');
+            const filter = input.value.toLowerCase();
+            const table = document.getElementById('serialeTable');
+            const tr = table.getElementsByTagName('tr');
+            
+            for (let i = 1; i < tr.length; i++) {
+                const td = tr[i].getElementsByTagName('td');
+                let show = false;
+                for (let j = 0; j < td.length; j++) {
+                    if (td[j] && td[j].textContent.toLowerCase().indexOf(filter) > -1) {
+                        show = true;
+                        break;
+                    }
+                }
+                tr[i].style.display = show ? '' : 'none';
+            }
+        }
+    
+    </script>
+</body>
+</html>
