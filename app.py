@@ -8,7 +8,7 @@ load_dotenv()
 app = Flask(__name__)
 
 #DB_PATH = 'seriale.db'
-
+#
 if os.getenv('DATABASE_URL'):
     import psycopg2
     from psycopg2.extras import RealDictConnection
