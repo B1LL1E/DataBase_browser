@@ -31,7 +31,7 @@ else:
 @app.route('/')
 def index():
     if DB_TYPE == 'postgres':
-        conn = get_db_conn()
+        conn = get_db_conn() 
         cur = conn.cursor(cursor_factory=RealDictConnection)
     else:
         conn = sqlite3.connect(DATABASE_URL)
