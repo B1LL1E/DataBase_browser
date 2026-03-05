@@ -85,12 +85,12 @@
                     <td><strong>{{ serial.tytul }}</strong></td>
                     <td>{{ serial.nr_odc_poczatek }}-{{ serial.nr_odc_koniec }}</td>
                     <td>
-                        {% if serial.avt == 'dubbing' %}<span style="color:#00ff88">🎙️</span>{% endif %}
-                        {% if serial.avt == 'napisy' %}<span style="color:#ffaa00">📝</span>{% endif %}
-                        {{ serial.avt }}
+                        {% if serial.AVT == 'dubbing' %}<span style="color:#00ff88">🎙️</span>{% endif %}
+                        {% if serial.AVT == 'napisy' %}<span style="color:#ffaa00">📝</span>{% endif %}
+                        {{ serial.AVT }}
                     </td>
                     <td>{{ serial.jezyk }}</td>
-                    <td>{{ serial.autor_avt}}</td>
+                    <td>{{ serial.autor_AVT}}</td>
                     <td><a href="{{ serial.zrodlo }}" target="_blank" style="color:#667eea">🔗 Odtwórz</a></td>
                 </tr>
                 {% endfor %}
