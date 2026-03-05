@@ -7,13 +7,17 @@ from psycopg2.extras import RealDictConnection
 load_dotenv()
 
 app = Flask(__name__)
+serialeDB_env = os.getenv("serialeDB")
+
+DATABASE_URL = os.getenv('DATABASE_URL', serialeDB_env)
 
 
-DATABASE_URL = os.getenv('DATABASE_URL', 'seriale.db')
 
+print(DATABASE_URL)
 
 #LOKALNIE CZY ONLINE?
 if DATABASE_URL:
+    print("POSTGRESQL")
     #laczy z baza PostgreSQL
     def get_db_conn():
         conn = psycopg2.connect(DATABASE_URL)
@@ -21,11 +25,17 @@ if DATABASE_URL:
         conn.autocommit = True
         return conn
     DB_TYPE = 'postgres'
+
 else:
+    print("sqlite3")
     #tylko lokalnie
     import sqlite3
     DB_PATH = 'seriale.db'
     DB_TYPE = 'sqlite'
+
+
+
+
 
 #glowne polaczenie
 @app.route('/')
@@ -41,6 +51,10 @@ def index():
     seriale = cur.fetchall()
     conn.close()
     return render_template('index.html', seriale = seriale)
+
+
+
+
 
 @app.route('/add', methods = ['POST'])
 def add_serial():
