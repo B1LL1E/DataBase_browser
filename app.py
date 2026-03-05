@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect
 from dotenv import load_dotenv
 import os
 import psycopg2
-from psycopg2.extras import RealDictConnection
+from psycopg2.extras import RealDictCursor
 
 load_dotenv()
 
@@ -16,7 +16,7 @@ DATABASE_URL = os.getenv('DATABASE_URL', serialeDB_env)
 print(DATABASE_URL)
 
 #LOKALNIE CZY ONLINE?
-if DATABASE_URL:
+if DATABASE_URL and DATABASE_URL.startswith("postgres"):
     print("POSTGRESQL")
     #laczy z baza PostgreSQL
     def get_db_conn():
@@ -42,7 +42,7 @@ else:
 def index():
     if DB_TYPE == 'postgres':
         conn = get_db_conn()
-        cur = conn.cursor(cursor_factory=RealDictConnection)
+        cur = conn.cursor(cursor_factory=RealDictCursor)
     else:
         conn = sqlite3.connect(DATABASE_URL)
         conn.row_factory = sqlite3.Row
